@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="css/theme.css">
+</head>
+<body>
+<nav class="navbar navbar-default" role="navigation">
+    <div class="navbar-header">
+        <a class="navbar-brand" href="#">Aggregate report</a>
+    </div>
+</nav>
+{% if env or report %}
+    <div class="panel-group" id="description">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#description" href="#collapseOne">
+                        Description
+                    </a>
+                </h4>
+            </div>
+            <div id="collapseOne" class="panel-collapse collapse in">
+                <div class="panel-body">
+                    {% if env %}
+                        <div class="col-md-6">
+                            <table class="table table-striped table-condensed table-responsive table-bordered">
+                                {% for elem in env %}
+                                    {% for k in elem.keys() %}
+                                        <tr>
+                                            <td>{{ k }}</td>
+                                            <td>{{ elem[k] }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                    {% endif %}
+                    {% if report %}
+                        <div class="col-md-6">
+                            {{ report }}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+{% endif %}
+
+{{ data_table }}
+
+<script type="text/javascript" src="js/jquery.js"></script>
+<script type="text/javascript" src="js/bootstrap.js"></script>
+<script type="text/javascript">
+    $("table tbody td:nth-child(2)").addClass('mean');
+    $("table tbody td:nth-child(3)").addClass('median');
+    $("table tbody td:nth-child(4)").addClass('90line');
+    $("table tbody td:nth-child(5)").addClass('min');
+    $("table tbody td:nth-child(6)").addClass('max');
+    $("table tbody td:nth-child(2)").addClass('throughput');
+
+    $('table tbody tr').each(function (i, n) {
+        if ($(n).children('.90line').text() > 1000) $(n).children().css('background-color', '#F7DFDF');
+        if ($(n).children('.90line').text() > 3000) $(n).children().css('background-color', '#F5AEAE');
+        if ($(n).children('.90line').text() > 10000) $(n).children().css('background-color', '#F77272');
+        if ($(n).children('.90line').text() > 60000) $(n).children().css('background-color', '#F73131');
+    });
+</script>
+</body>
