@@ -52,13 +52,6 @@
 <script type="text/javascript" src="js/jquery.js"></script>
 <script type="text/javascript" src="js/bootstrap.js"></script>
 <script type="text/javascript">
-    $("table tbody td:nth-child(2)").addClass('mean');
-    $("table tbody td:nth-child(3)").addClass('median');
-    $("table tbody td:nth-child(4)").addClass('90line');
-    $("table tbody td:nth-child(5)").addClass('min');
-    $("table tbody td:nth-child(6)").addClass('max');
-    $("table tbody td:nth-child(2)").addClass('throughput');
-
     $('table tbody tr').each(function (i, n) {
         if ($(n).children('.90line').text() > 1000) $(n).children().css('background-color', '#F7DFDF');
         if ($(n).children('.90line').text() > 3000) $(n).children().css('background-color', '#F5AEAE');

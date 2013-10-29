@@ -29,8 +29,8 @@ class BaseReport(object):
         report_dir = os.path.dirname(sys.modules[self.__module__].__file__)
         self.set_template(report_dir + '/' + self._template_name)
 
-    def read_csv(self, file_path):
-        self.df = pd.read_csv(file_path)
+    def read_csv(self, file_paths):
+        self.df = pd.read_csv(file_paths[0])
 
     def to_html(self, report_name=None):
         # set default report name
@@ -80,9 +80,6 @@ class BaseReport(object):
             self.report = d['description']
 
     def _generate_html_report(self):
-        if not hasattr(self, 'df') or not self.df:
-            return ''
-
         data_table = self._generate_html_data()
 
         template = Template(self.template)

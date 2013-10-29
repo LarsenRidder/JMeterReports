@@ -37,6 +37,18 @@ class AggregateReport(BaseReport):
 
         xml = etree.XML(result.to_html())
         xml.set('class', 'table table-hover table-striped table-condensed table-responsive table-bordered')
-        xml.set('border', '')
+        xml.set('id', 'data')
+
+        paths = {'mean': '//table[@id="data"]/tbody/tr/td[1]',
+                 'median': '//table[@id="data"]/tbody/tr/td[2]',
+                 '90line': '//table[@id="data"]/tbody/tr/td[3]',
+                 'min': '//table[@id="data"]/tbody/tr/td[4]',
+                 'max': '//table[@id="data"]/tbody/tr/td[5]',
+                 'throughput': '//table[@id="data"]/tbody/tr/td[6]'}
+
+        for k in paths:
+            tags = xml.xpath(paths[k])
+            for t in tags:
+                t.set('class', k)
 
         return etree.tostring(xml)
