@@ -44,41 +44,43 @@
             </div>
         </div>
     </div>
-    <div class="panel-group" id="params">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h4 class="panel-title">
-                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#params" href="#collapseParams">
-                        Parameters
-                    </a>
-                </h4>
-            </div>
-            <div id="collapseParams" class="panel-collapse collapse">
-                <div class="panel-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="input-group">
-                                <span class="input-group-addon">Show columns</span>
-                                <div class="input-group-btn btn-group-custom" data-toggle="buttons">
-                                    <label class="btn btn-primary active">
-                                        <input id="btn_show_mean" type="checkbox" onchange="showColumn('btn_show_mean', ['mean1', 'mean2', 'mean_trend']);"> Mean
-                                    </label>
-                                    <label class="btn btn-primary active">
-                                        <input id="btn_show_median" type="checkbox" onchange="showColumn('btn_show_median', ['median1', 'median2', 'median_trend']);"> Median
-                                    </label>
-                                    <label class="btn btn-primary active">
-                                        <input id="btn_show_90line" type="checkbox" onchange="showColumn('btn_show_90line', ['90line1', '90line2', '90line_trend']);"> 90% Line
-                                    </label>
-                                    <label class="btn btn-primary">
-                                        <input id="btn_show_min" type="checkbox" onchange="showColumn('btn_show_min', ['min1', 'min2']);"> Min
-                                    </label>
-                                    <label class="btn btn-primary">
-                                        <input id="btn_show_max" type="checkbox" onchange="showColumn('btn_show_max', ['max1','max2']);"> Max
-                                    </label>
-                                    <label class="btn btn-primary">
-                                        <input id="btn_show_throughput" type="checkbox" onchange="showColumn('btn_show_throughput', ['throughput1','throughput2']);"> Throughput
-                                    </label>
-                                </div>
+    <br>
+{% endif %}
+<div class="panel-group" id="params">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a class="accordion-toggle" data-toggle="collapse" data-parent="#params" href="#collapseParams">
+                    Parameters
+                </a>
+            </h4>
+        </div>
+        <div id="collapseParams" class="panel-collapse collapse">
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <span class="input-group-addon">Show columns</span>
+
+                            <div class="input-group-btn btn-group-custom" data-toggle="buttons">
+                                <label class="btn btn-primary active">
+                                    <input id="btn_show_mean" type="checkbox" onchange="showColumn('btn_show_mean', ['mean1', 'mean2', 'mean_trend']);"> Mean
+                                </label>
+                                <label class="btn btn-primary active">
+                                    <input id="btn_show_median" type="checkbox" onchange="showColumn('btn_show_median', ['median1', 'median2', 'median_trend']);"> Median
+                                </label>
+                                <label class="btn btn-primary active">
+                                    <input id="btn_show_90line" type="checkbox" onchange="showColumn('btn_show_90line', ['90line1', '90line2', '90line_trend']);"> 90% Line
+                                </label>
+                                <label class="btn btn-primary">
+                                    <input id="btn_show_min" type="checkbox" onchange="showColumn('btn_show_min', ['min1', 'min2']);"> Min
+                                </label>
+                                <label class="btn btn-primary">
+                                    <input id="btn_show_max" type="checkbox" onchange="showColumn('btn_show_max', ['max1','max2']);"> Max
+                                </label>
+                                <label class="btn btn-primary">
+                                    <input id="btn_show_throughput" type="checkbox" onchange="showColumn('btn_show_throughput', ['throughput1','throughput2']);"> Throughput
+                                </label>
                             </div>
                         </div>
                     </div>
@@ -86,8 +88,8 @@
             </div>
         </div>
     </div>
-    <br>
-{% endif %}
+</div>
+<br>
 
 {{ data_table }}
 
@@ -113,7 +115,6 @@
                 $('.' + columns[i]).hide();
             }
         }
-
     }
 </script>
 </body>

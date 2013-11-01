@@ -21,4 +21,4 @@ report = klass()
 report.read_csv(args.data_files)
 if args.description:
     report.set_description(args.description)
-report.to_html('test')
+report.to_html(args.name)
