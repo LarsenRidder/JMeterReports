@@ -30,7 +30,6 @@ class CompareReport(BaseReport):
         for i in size.index:
             result_df1['sum'][i] = float(size[i]) / float(result_df1['sum'][i]) * 1000
 
-        result_df1 = result_df1.applymap(lambda x: round(x, 2))
         result_df1.rename(columns={'mean': 'Mean 1, msec',
                                    'median': 'Median 1, msec',
                                    'percentile90': '90% Line 1, msec',
@@ -47,7 +46,6 @@ class CompareReport(BaseReport):
         for i in size.index:
             result_df2['sum'][i] = float(size[i]) / float(result_df2['sum'][i]) * 1000
 
-        result_df2 = result_df2.applymap(lambda x: round(x, 2))
         result_df2.rename(columns={'mean': 'Mean 2, msec',
                                    'median': 'Median 2, msec',
                                    'percentile90': '90% Line 2, msec',
@@ -63,6 +61,7 @@ class CompareReport(BaseReport):
         result['90% Line trend, %'] = result[['90% Line 1, msec','90% Line 2, msec']].apply(trend, axis=1)
 
         # reorder columns
+        result = result.applymap(lambda x: round(x, 2))
         result = result[['Mean 1, msec', 'Mean 2, msec', 'Mean trend, %',
                          'Median 1, msec', 'Median 2, msec', 'Median trend, %',
                          '90% Line 1, msec', '90% Line 2, msec', '90% Line trend, %',
@@ -82,9 +81,9 @@ class CompareReport(BaseReport):
                  'median1': ['//table[@id="data"]/tbody/tr/td[4]', '//table[@id="data"]/thead/tr/th[5]'],
                  'median2': ['//table[@id="data"]/tbody/tr/td[5]', '//table[@id="data"]/thead/tr/th[6]'],
                  'median_trend': ['//table[@id="data"]/tbody/tr/td[6]', '//table[@id="data"]/thead/tr/th[7]'],
-                 '90line1': ['//table[@id="data"]/tbody/tr/td[7]', '//table[@id="data"]/thead/tr/th[8]'],
-                 '90line2': ['//table[@id="data"]/tbody/tr/td[8]', '//table[@id="data"]/thead/tr/th[9]'],
-                 '90line_trend': ['//table[@id="data"]/tbody/tr/td[9]', '//table[@id="data"]/thead/tr/th[10]'],
+                 'line901': ['//table[@id="data"]/tbody/tr/td[7]', '//table[@id="data"]/thead/tr/th[8]'],
+                 'line902': ['//table[@id="data"]/tbody/tr/td[8]', '//table[@id="data"]/thead/tr/th[9]'],
+                 'line90_trend': ['//table[@id="data"]/tbody/tr/td[9]', '//table[@id="data"]/thead/tr/th[10]'],
                  'min1': ['//table[@id="data"]/tbody/tr/td[10]', '//table[@id="data"]/thead/tr/th[11]'],
                  'min2': ['//table[@id="data"]/tbody/tr/td[11]', '//table[@id="data"]/thead/tr/th[12]'],
                  'max1': ['//table[@id="data"]/tbody/tr/td[12]', '//table[@id="data"]/thead/tr/th[13]'],

@@ -70,7 +70,7 @@
                                     <input id="btn_show_median" type="checkbox" onchange="showColumn('btn_show_median', ['median1', 'median2', 'median_trend']);"> Median
                                 </label>
                                 <label class="btn btn-primary active">
-                                    <input id="btn_show_90line" type="checkbox" onchange="showColumn('btn_show_90line', ['90line1', '90line2', '90line_trend']);"> 90% Line
+                                    <input id="btn_show_90line" type="checkbox" onchange="showColumn('btn_show_90line', ['line901', 'line902', 'line90_trend']);"> 90% Line
                                 </label>
                                 <label class="btn btn-primary">
                                     <input id="btn_show_min" type="checkbox" onchange="showColumn('btn_show_min', ['min1', 'min2']);"> Min
@@ -103,6 +103,18 @@
         $('.max2').hide();
         $('.throughput1').hide();
         $('.throughput2').hide();
+
+        $('tr').each(function (i, n) {
+            if ($(n).children('.mean_trend').text() < 0) $(n).children('.mean_trend, .mean1, .mean2').css('background-color', '#F5E0DF');
+            if ($(n).children('.mean_trend').text() > 0) $(n).children('.mean_trend, .mean1, .mean2').css('background-color', '#DFF5DF');
+
+            if ($(n).children('.median_trend').text() < 0) $(n).children('.median_trend, .median1, .median2').css('background-color', '#F5E0DF');
+            if ($(n).children('.median_trend').text() > 0) $(n).children('.median_trend, .median1, .median2').css('background-color', '#DFF5DF');
+
+            if ($(n).children('.line90_trend').text() < 0) $(n).children('.line90_trend, .line901, .line902').css('background-color', '#F5E0DF');
+            if ($(n).children('.line90_trend').text() > 0) $(n).children('.line90_trend, .line901, .line902').css('background-color', '#DFF5DF');
+        });
+
     });
 
     function showColumn(btn_name, columns) {
