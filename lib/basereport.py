@@ -22,6 +22,8 @@ class BaseReport(object):
         self.report = ''
         # pandas data frame
         self.df = None
+        #
+        self.report_name = ''
         # set default template name. you can redefine in child report class
         if not hasattr(self, '_template_name'):
             self._template_name = 'index.jinja2'
@@ -32,8 +34,9 @@ class BaseReport(object):
     def read_csv(self, file_paths):
         self.df = pd.read_csv(file_paths[0])
 
-    def to_html(self, report_name=None):
-        report_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_" + report_name)
+    def to_html(self, report_name):
+        #report_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_" + report_name)
+        report_name = 'test'
 
         # rename previous report if exist
         if os.path.isdir('results/' + report_name):
@@ -43,6 +46,7 @@ class BaseReport(object):
         os.mkdir('results/' + report_name)
         os.mkdir('results/' + report_name + '/css')
         os.mkdir('results/' + report_name + '/js')
+        os.mkdir('results/' + report_name + '/plots')
 
         # copy external lib
         shutil.copy('lib/external/bootstrap/css/bootstrap.css', 'results/' + report_name + '/css')
@@ -51,6 +55,7 @@ class BaseReport(object):
         shutil.copy('lib/external/jquery/jquery.js', 'results/' + report_name + '/js')
 
         report = self._generate_html_report()
+        self._generate_plots(report_name)
 
         f = codecs.open('results/' + report_name + '/index.html', 'w', encoding='utf-8')
         f.write(report)
@@ -85,3 +90,6 @@ class BaseReport(object):
 
     def _generate_html_data(self):
         return self.df.to_html()
+
+    def _generate_plots(self, report_name):
+        pass

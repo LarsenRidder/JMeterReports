@@ -15,11 +15,11 @@ class AggregateReport(BaseReport):
         if not hasattr(self, 'df') or not self.df:
             return ''
 
-        # group data by 'label' field
-        group_by_operation = self.df.groupby('label')
+        # group data by 'label' field. this data use in plot generation.
+        self._group_by_operation = self.df.groupby('label')
         # calc statistic by operation: mean, median, 90% line
-        result = group_by_operation['Latency'].agg([np.mean, np.median, percentile90, np.min, np.max, np.std, np.sum])
-        size = group_by_operation.size()
+        result = self._group_by_operation['Latency'].agg([np.mean, np.median, percentile90, np.min, np.max, np.std, np.sum])
+        size = self._group_by_operation.size()
 
         # Calc throughput for every group
         result['sum'] = result['sum'].astype(float)
@@ -38,7 +38,7 @@ class AggregateReport(BaseReport):
                                'std': 'StDev, msec'}, inplace=True)
 
         xml = etree.XML(result.to_html())
-        xml.set('class', 'table table-hover table-striped table-condensed table-responsive table-bordered')
+        xml.set('class', 'table table-hover table-condensed table-responsive table-bordered')
         xml.set('id', 'data')
 
         paths = {'mean': ['//table[@id="data"]/tbody/tr/td[1]', '//table[@id="data"]/thead/tr/th[2]'],
@@ -55,39 +55,100 @@ class AggregateReport(BaseReport):
                 for t in tags:
                     t.set('class', k)
 
-        # plt.figure(figsize=(12, 6), dpi=150)
-        # l = self.df['Latency']
-        # l[l < np.percentile(l, 90)].hist(color='g', normed=1, facecolor='g', alpha=0.50, bins=100)
-        # plt.xlabel('Response time')
-        # plt.ylabel('Probability')
-        # plt.title('Histogram of 90% line response time')
-        # plt.savefig('line90all.png')
-        # plt.close()
-        #
-        # plt.figure(figsize=(12, 6), dpi=150)
-        # l.hist(color='g', normed=1, facecolor='g', alpha=0.50, bins=100)
-        # plt.xlabel('Response time')
-        # plt.ylabel('Probability')
-        # plt.title('Histogram of all response time')
-        # plt.savefig('all.png')
-        # plt.close()
-        #
-        # for label, data in group_by_operation:
-        #     plt.figure(figsize=(12, 6), dpi=150)
-        #     data['Latency'].hist(color='g', normed=1, facecolor='g', alpha=0.50, bins=100)
-        #     plt.xlabel('Response time')
-        #     plt.ylabel('Probability')
-        #     plt.title('Histogram of all response time')
-        #     plt.savefig(label + '.png')
-        #     plt.close()
-        #
-        #     plt.figure(figsize=(12, 6), dpi=150)
-        #     a = data['Latency']
-        #     plt.plot(range(1, len(a)+1), a, 'ro', color='g', alpha=0.50)
-        #     plt.xlabel('Response time')
-        #     plt.ylabel('Probability')
-        #     plt.title('Histogram of all response time')
-        #     plt.savefig(label + '2.png')
-        #     plt.close()
+        for t in xml.xpath('//table[@id="data"]/tbody/tr'):
+            req_name = self._normalize_test_name(t[0].text)
+            t.set('data-toggle', 'collapse')
+            t.set('data-target', '#' + req_name)
+            t.set('class', 'accordion-toggle')
+            t.addnext(etree.XML('<tr>'
+                                    '<td colspan="8" class="hiddenRow nohover">'
+                                        '<div id="' + req_name + '" class="accordian-body collapse">'
+                                            '<img src="plots/' + req_name + '_hist_prob_all.png"/>'
+                                            '<img src="plots/' + req_name + '_hist_prob_90line.png"/>'
+                                            '<img src="plots/' + req_name + '_requests.png"/>'
+                                        '</div>'
+                                    '</td>'
+                                '</tr>'))
 
         return etree.tostring(xml)
+
+    def _normalize_test_name(self, name):
+        return name.replace('/', '_') \
+            .replace(' ', '_') \
+            .replace('(', '_') \
+            .replace(')', '_') \
+            .replace('.', '_') \
+            .replace('+', '_') \
+            .replace('=', '_') \
+            .replace('*', '_') \
+            .replace('?', '_') \
+            .replace('&', '_') \
+            .replace('^', '_') \
+            .replace('%', '_') \
+            .replace('$', '_') \
+            .replace('#', '_') \
+            .replace('@', '_') \
+            .replace(',', '_') \
+            .replace('!', '_') \
+            .replace(';', '_') \
+            .replace('{', '_') \
+            .replace('}', '_') \
+            .replace('[', '_') \
+            .replace(']', '_')
+
+    def _generate_plots(self, report_name):
+        """
+
+        :param report_name:
+        """
+        l = self.df['Latency']
+
+        plt.figure(figsize=(8, 5), dpi=150)
+        l.hist(color='g', normed=1, facecolor='g', alpha=0.50, bins=100)
+        plt.xlabel('Response time')
+        plt.ylabel('Probability')
+        plt.title('Histogram of all response time')
+        plt.tight_layout()
+        plt.savefig('results/' + report_name + '/plots/hist_prob_all.png')
+        plt.close()
+
+        plt.figure(figsize=(8, 5), dpi=150)
+        l[l < np.percentile(l, 90)].hist(color='g', normed=1, facecolor='g', alpha=0.50, bins=60)
+        plt.xlabel('Response time')
+        plt.ylabel('Probability')
+        plt.title('Histogram of 90% line response time')
+        plt.tight_layout()
+        plt.savefig('results/' + report_name + '/plots/hist_prob_line90.png')
+        plt.close()
+
+        for label, data in self._group_by_operation:
+            file_name = self._normalize_test_name(label)
+            d = data['Latency']
+
+            plt.figure(figsize=(6, 4))
+            d.hist(color='g', normed=1, facecolor='g', alpha=0.50, bins=100)
+            plt.xlabel('Response time')
+            plt.ylabel('Probability')
+            plt.title('Histogram of all response time')
+            plt.tight_layout()
+            plt.savefig('results/' + report_name + '/plots/' + file_name + '_hist_prob_all.png')
+            plt.close()
+
+            plt.figure(figsize=(6, 4), dpi=150)
+            d[d < np.percentile(d, 90)].hist(color='g', normed=1, facecolor='g', alpha=0.50, bins=60)
+            plt.xlabel('Response time')
+            plt.ylabel('Probability')
+            plt.title('Histogram of 90% line response time')
+            plt.tight_layout()
+            plt.savefig('results/' + report_name + '/plots/' + file_name + '_hist_prob_90line.png')
+            plt.close()
+
+            plt.figure(figsize=(6, 4), dpi=150)
+            a = data['Latency']
+            plt.plot(range(1, len(a)+1), a, 'ro', color='g', alpha=0.50)
+            plt.xlabel('Request')
+            plt.ylabel('Time')
+            plt.title('Requests times')
+            plt.tight_layout()
+            plt.savefig('results/' + report_name + '/plots/' + file_name + '_requests.png')
+            plt.close()
