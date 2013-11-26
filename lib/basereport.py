@@ -35,8 +35,7 @@ class BaseReport(object):
         self.df = pd.read_csv(file_paths[0])
 
     def to_html(self, report_name):
-        #report_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_" + report_name)
-        report_name = 'test'
+        report_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_" + report_name)
 
         # rename previous report if exist
         if os.path.isdir('results/' + report_name):
