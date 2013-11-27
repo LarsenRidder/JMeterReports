@@ -72,30 +72,6 @@ class AggregateReport(BaseReport):
 
         return etree.tostring(xml)
 
-    def _normalize_test_name(self, name):
-        return name.replace('/', '_') \
-            .replace(' ', '_') \
-            .replace('(', '_') \
-            .replace(')', '_') \
-            .replace('.', '_') \
-            .replace('+', '_') \
-            .replace('=', '_') \
-            .replace('*', '_') \
-            .replace('?', '_') \
-            .replace('&', '_') \
-            .replace('^', '_') \
-            .replace('%', '_') \
-            .replace('$', '_') \
-            .replace('#', '_') \
-            .replace('@', '_') \
-            .replace(',', '_') \
-            .replace('!', '_') \
-            .replace(';', '_') \
-            .replace('{', '_') \
-            .replace('}', '_') \
-            .replace('[', '_') \
-            .replace(']', '_')
-
     def _generate_plots(self, report_name):
         """
 

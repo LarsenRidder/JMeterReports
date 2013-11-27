@@ -92,3 +92,27 @@ class BaseReport(object):
 
     def _generate_plots(self, report_name):
         pass
+
+    def _normalize_test_name(self, name):
+        return name.replace('/', '_') \
+            .replace(' ', '_') \
+            .replace('(', '_') \
+            .replace(')', '_') \
+            .replace('.', '_') \
+            .replace('+', '_') \
+            .replace('=', '_') \
+            .replace('*', '_') \
+            .replace('?', '_') \
+            .replace('&', '_') \
+            .replace('^', '_') \
+            .replace('%', '_') \
+            .replace('$', '_') \
+            .replace('#', '_') \
+            .replace('@', '_') \
+            .replace(',', '_') \
+            .replace('!', '_') \
+            .replace(';', '_') \
+            .replace('{', '_') \
+            .replace('}', '_') \
+            .replace('[', '_') \
+            .replace(']', '_')
