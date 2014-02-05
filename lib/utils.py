@@ -1,6 +1,15 @@
 import numpy as np
 
 
+def percentile60(x):
+    return np.percentile(x, 60)
+
+def percentile70(x):
+    return np.percentile(x, 70)
+
+def percentile80(x):
+    return np.percentile(x, 80)
+
 def percentile90(x):
     return np.percentile(x, 90)
 
