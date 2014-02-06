@@ -4,6 +4,9 @@ from lxml import etree
 from lib.basereport import BaseReport
 from lib.utils import percentile90
 import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
+
+from pandas import Series
 
 
 class AggregateReport(BaseReport):
@@ -77,6 +80,35 @@ class AggregateReport(BaseReport):
 
         :param report_name:
         """
+        if self.perfmon:
+            i = 1
+            for df in self.perfmon:
+                grp = df.groupby('label')
+                plt.figure(figsize=(12, 8), dpi=150)
+                ax = plt.subplot(111)
+
+                for g in grp:
+                    elapsed = g[1].set_index('timeStamp').unstack()['elapsed']
+                    elapsed.plot(label=g[0])
+
+                font_prop = FontProperties()
+                font_prop.set_size('small')
+
+                box = ax.get_position()
+                ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+                ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop=font_prop)
+
+                plt.xticks(rotation=70)
+                for tick in ax.xaxis.get_major_ticks():
+                    tick.label.set_fontsize(10)
+                plt.xlabel('')
+                plt.ylabel('Metrics')
+
+                plt.tight_layout(rect=[0.02, -0.02, 0.8, 1])
+                plt.savefig('results/' + report_name + '/plots/perfmon{0}.png'.format(i))
+                i += 1
+                plt.close()
+
         l = self.df['Latency']
 
         plt.figure(figsize=(8, 5), dpi=150)

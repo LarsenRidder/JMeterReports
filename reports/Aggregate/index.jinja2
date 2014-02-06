@@ -94,6 +94,28 @@
 </div>
 <br>
 
+{% if perfmon > 0 %}
+    <div class="panel-group" id="perfmon">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a class="accordion-toggle" data-toggle="collapse" data-parent="#perfmon" href="#collapsePerfmon">
+                        PerfMon
+                    </a>
+                </h4>
+            </div>
+            <div id="collapsePerfmon" class="panel-collapse collapse">
+                <div class="panel-body">
+                    {% for i in range(1, perfmon+1) %}
+                         <img src="plots/perfmon{{i}}.png"/>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <br>
+{% endif %}
+
 <div class="panel-group" id="plots">
     <div class="panel panel-default">
         <div class="panel-heading">

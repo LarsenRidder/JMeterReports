@@ -68,10 +68,6 @@ class PercentilesReport(BaseReport):
 
         :param report_name:
         """
-        """
-
-        :param report_name:
-        """
         for label, data in self._group_by_operation:
             file_name = self._normalize_test_name(label)
             d = data['Latency']

@@ -22,8 +22,10 @@ class BaseReport(object):
         self.report = ''
         # pandas data frame
         self.df = None
-        #
+        # report name
         self.report_name = ''
+        # perfmon data
+        self.perfmon = []
         # set default template name. you can redefine in child report class
         if not hasattr(self, '_template_name'):
             self._template_name = 'index.jinja2'
@@ -33,6 +35,14 @@ class BaseReport(object):
 
     def read_csv(self, file_paths):
         self.df = pd.read_csv(file_paths[0])
+        # convert timeStamp to normal datetime
+        self.df['timeStamp'] = self.df['timeStamp'].apply(lambda x: datetime.datetime.fromtimestamp(int(str(x)[:-3])).strftime('%Y-%m-%d %H:%M:%S'))
+
+    def read_perfmon(self, file_paths):
+        for file_path in file_paths:
+            df = pd.read_csv(file_path)
+            df['timeStamp'] = df['timeStamp'].apply(lambda x: datetime.datetime.fromtimestamp(int(str(x)[:-3])).strftime('%Y-%m-%d %H:%M:%S'))
+            self.perfmon.append(df)
 
     def to_html(self, report_name):
         report_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_" + report_name)
@@ -85,7 +95,7 @@ class BaseReport(object):
         data_table = self._generate_html_data()
 
         template = Template(self.template)
-        return template.render(data_table=data_table, env=self.environment, report=self.report)
+        return template.render(data_table=data_table, env=self.environment, report=self.report, perfmon=len(self.perfmon))
 
     def _generate_html_data(self):
         return self.df.to_html()
