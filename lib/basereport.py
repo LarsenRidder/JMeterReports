@@ -112,6 +112,7 @@ class BaseReport(object):
             .replace(',', '_') \
             .replace('!', '_') \
             .replace(';', '_') \
+            .replace(':', '_') \
             .replace('{', '_') \
             .replace('}', '_') \
             .replace('[', '_') \

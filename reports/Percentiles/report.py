@@ -78,6 +78,7 @@ class PercentilesReport(BaseReport):
 
             plt.figure(figsize=(6, 4))
             d.hist(color='g', normed=1, facecolor='g', alpha=0.50, bins=100)
+
             plt.xlabel('Response time')
             plt.ylabel('Probability')
             plt.title('Histogram of all response time')
