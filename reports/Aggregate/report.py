@@ -4,6 +4,7 @@ from lxml import etree
 from lib.basereport import BaseReport
 from lib.utils import percentile90
 import matplotlib.pyplot as plt
+from matplotlib import rc
 from matplotlib.font_manager import FontProperties
 
 from pandas import Series
@@ -15,7 +16,7 @@ class AggregateReport(BaseReport):
     """
 
     def _generate_html_data(self):
-        if not hasattr(self, 'df') or not self.df:
+        if not hasattr(self, 'df') or self.df.empty:
             return ''
 
         # group data by 'label' field. this data use in plot generation.
@@ -64,14 +65,14 @@ class AggregateReport(BaseReport):
             t.set('data-target', '#' + req_name)
             t.set('class', 'accordion-toggle')
             t.addnext(etree.XML('<tr>'
-                                    '<td colspan="8" class="hiddenRow nohover">'
-                                        '<div id="' + req_name + '" class="accordian-body collapse">'
-                                            '<img src="plots/' + req_name + '_hist_prob_all.png"/>'
-                                            '<img src="plots/' + req_name + '_hist_prob_90line.png"/>'
-                                            '<img src="plots/' + req_name + '_requests.png"/>'
-                                        '</div>'
-                                    '</td>'
-                                '</tr>'))
+                                '<td colspan="8" class="hiddenRow nohover">'
+                                '<div id="' + req_name + '" class="accordian-body collapse">'
+                                                         '<img src="plots/' + req_name + '_hist_prob_all.png"/>'
+                                                                                         '<img src="plots/' + req_name + '_hist_prob_90line.png"/>'
+                                                                                                                         '<img src="plots/' + req_name + '_requests.png"/>'
+                                                                                                                                                         '</div>'
+                                                                                                                                                         '</td>'
+                                                                                                                                                         '</tr>'))
 
         return etree.tostring(xml)
 
@@ -80,51 +81,60 @@ class AggregateReport(BaseReport):
 
         :param report_name:
         """
+        font = {'size': '8'}
+                #'family' : 'monospace',
+                #'weight' : 'bold',
+        rc('font', **font)  # pass in the font dict as kwargs
+
         if self.perfmon:
-            i = 1
-            for df in self.perfmon:
-                grp = df.groupby('label')
-                plt.figure(figsize=(12, 8), dpi=150)
-                ax = plt.subplot(111)
+            pass
 
-                for g in grp:
-                    elapsed = g[1].set_index('timeStamp').unstack()['elapsed']
-                    elapsed.plot(label=g[0])
-
-                font_prop = FontProperties()
-                font_prop.set_size('small')
-
-                box = ax.get_position()
-                ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
-                ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop=font_prop)
-
-                plt.xticks(rotation=70)
-                for tick in ax.xaxis.get_major_ticks():
-                    tick.label.set_fontsize(10)
-                plt.xlabel('')
-                plt.ylabel('Metrics')
-
-                plt.tight_layout(rect=[0.02, -0.02, 0.8, 1])
-                plt.savefig('results/' + report_name + '/plots/perfmon{0}.png'.format(i))
-                i += 1
-                plt.close()
+            # i = 1
+            # for df in self.perfmon:
+            #     grp = df.groupby('label')
+            #     plt.figure(figsize=(12, 8), dpi=150)
+            #     ax = plt.subplot(111)
+            #
+            #     for g in grp:
+            #         elapsed = g[1].set_index('timeStamp').unstack()['elapsed']
+            #         elapsed.plot(label=g[0])
+            #
+            #     font_prop = FontProperties()
+            #     font_prop.set_size('small')
+            #
+            #     box = ax.get_position()
+            #     ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+            #     ax.legend(loc='center left', bbox_to_anchor=(1, 0.5), prop=font_prop)
+            #
+            #     plt.xticks(rotation=70)
+            #     for tick in ax.xaxis.get_major_ticks():
+            #         tick.label.set_fontsize(10)
+            #     plt.xlabel('')
+            #     plt.ylabel('Metrics')
+            #
+            #     plt.tight_layout(rect=[0.02, -0.02, 0.8, 1])
+            #     plt.savefig('results/' + report_name + '/plots/perfmon{0}.png'.format(i))
+            #     i += 1
+            #     plt.close()
 
         l = self.df['Latency']
 
         plt.figure(figsize=(8, 5), dpi=150)
-        l.hist(color='g', normed=1, facecolor='g', alpha=0.50, bins=100)
-        plt.xlabel('Response time')
-        plt.ylabel('Probability')
-        plt.title('Histogram of all response time')
+        l.hist(normed=True, alpha=0.2)
+        l.plot(kind='kde')
+        plt.xlabel('Response time', fontsize=11)
+        plt.ylabel('Probability', fontsize=11)
+        plt.title('Histogram of all response time', fontsize=12)
         plt.tight_layout()
         plt.savefig('results/' + report_name + '/plots/hist_prob_all.png')
         plt.close()
 
         plt.figure(figsize=(8, 5), dpi=150)
-        l[l < np.percentile(l, 90)].hist(color='g', normed=1, facecolor='g', alpha=0.50, bins=60)
-        plt.xlabel('Response time')
-        plt.ylabel('Probability')
-        plt.title('Histogram of 90% line response time')
+        l[l < np.percentile(l, 90)].hist(normed=True, alpha=0.2)
+        l[l < np.percentile(l, 90)].plot(kind='kde')
+        plt.xlabel('Response time', fontsize=11)
+        plt.ylabel('Probability', fontsize=11)
+        plt.title('Histogram of 90% line response time', fontsize=12)
         plt.tight_layout()
         plt.savefig('results/' + report_name + '/plots/hist_prob_line90.png')
         plt.close()
@@ -134,29 +144,31 @@ class AggregateReport(BaseReport):
             d = data['Latency']
 
             plt.figure(figsize=(6, 4))
-            d.hist(color='g', normed=1, facecolor='g', alpha=0.50, bins=100)
-            plt.xlabel('Response time')
-            plt.ylabel('Probability')
-            plt.title('Histogram of all response time')
+            d.hist(normed=True, alpha=0.2)
+            d.plot(kind='kde')
+            plt.xlabel('Response time', fontsize=11)
+            plt.ylabel('Probability', fontsize=11)
+            plt.title('Histogram of all response time', fontsize=12)
             plt.tight_layout()
             plt.savefig('results/' + report_name + '/plots/' + file_name + '_hist_prob_all.png')
             plt.close()
 
             plt.figure(figsize=(6, 4), dpi=150)
-            d[d < np.percentile(d, 90)].hist(color='g', normed=1, facecolor='g', alpha=0.50, bins=60)
-            plt.xlabel('Response time')
-            plt.ylabel('Probability')
-            plt.title('Histogram of 90% line response time')
+            d[d < np.percentile(d, 90)].hist(normed=True, alpha=0.2)
+            d[d < np.percentile(d, 90)].plot(kind='kde')
+            plt.xlabel('Response time', fontsize=11)
+            plt.ylabel('Probability', fontsize=11)
+            plt.title('Histogram of 90% line response time', fontsize=12)
             plt.tight_layout()
             plt.savefig('results/' + report_name + '/plots/' + file_name + '_hist_prob_90line.png')
             plt.close()
 
             plt.figure(figsize=(6, 4), dpi=150)
             a = data['Latency']
-            plt.plot(range(1, len(a)+1), a, 'ro', color='g', alpha=0.50)
-            plt.xlabel('Request')
-            plt.ylabel('Time')
-            plt.title('Requests times')
+            plt.plot(range(1, len(a) + 1), a, 'ro', color='g', alpha=0.50)
+            plt.xlabel('Request', fontsize=11)
+            plt.ylabel('Time', fontsize=11)
+            plt.title('Requests times', fontsize=12)
             plt.tight_layout()
             plt.savefig('results/' + report_name + '/plots/' + file_name + '_requests.png')
             plt.close()

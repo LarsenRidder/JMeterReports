@@ -11,3 +11,7 @@
 .table-hover > tbody > tr:hover > td.nohover {
     background-color: transparent;
 }
+
+#perfmon > plot-panel {
+    text-align: center;
+}

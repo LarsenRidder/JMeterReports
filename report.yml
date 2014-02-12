@@ -1,4 +1,4 @@
-environment:
+﻿environment:
   - platform:    'RHEL5'
   - server:      'srv2-3pd-crm05'
   - cpu:         '8 x Intel(R) Xeon(R) CPU E5450@3.00GHz (4 cores in each)'
@@ -8,4 +8,4 @@ environment:
   - CMS_SRV_HAS: '025.00'
 
 description: >
-  
+  Пробелмы с производительностью наблюдаются только в GET_INQUIRY_LIST. При этом на таекйщий момент нельзя сказать, с чем они связаны - либо с обьемом возвращамых данных, либо с проблемами. Требуется дполнительный анализ.

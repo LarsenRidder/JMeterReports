@@ -1,0 +1,17 @@
+﻿"CPU/Therads over time":
+  params:
+    zero-time: Yes
+
+  output: cpu_thread_over_time
+  input:
+    "data/cpu.csv":
+      columns:
+        - elapsed
+
+      group-by: label
+      groups:
+        - "srv2-3pd-crm05 CPU"
+
+    "data/perfdata.csv":
+      columns:
+        - allThreads

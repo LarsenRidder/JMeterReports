@@ -105,9 +105,9 @@
                 </h4>
             </div>
             <div id="collapsePerfmon" class="panel-collapse collapse">
-                <div class="panel-body">
+                <div class="panel-body plot-panel">
                     {% for i in range(1, perfmon+1) %}
-                         <img src="plots/perfmon{{i}}.png"/>
+                         <img src="plots/perfmon{{i}}.png" class="perfmon-plot"/>
                     {% endfor %}
                 </div>
             </div>
