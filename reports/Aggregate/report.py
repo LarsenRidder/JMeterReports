@@ -1,13 +1,11 @@
+from matplotlib import rc
+import matplotlib.mlab as mlab
+import matplotlib.pyplot as plt
 import numpy as np
 from lxml import etree
 
 from lib.basereport import BaseReport
 from lib.utils import percentile90
-import matplotlib.pyplot as plt
-from matplotlib import rc
-from matplotlib.font_manager import FontProperties
-
-from pandas import Series
 
 
 class AggregateReport(BaseReport):
@@ -64,15 +62,18 @@ class AggregateReport(BaseReport):
             t.set('data-toggle', 'collapse')
             t.set('data-target', '#' + req_name)
             t.set('class', 'accordion-toggle')
-            t.addnext(etree.XML('<tr>'
-                                '<td colspan="8" class="hiddenRow nohover">'
-                                '<div id="' + req_name + '" class="accordian-body collapse">'
-                                                         '<img src="plots/' + req_name + '_hist_prob_all.png"/>'
-                                                                                         '<img src="plots/' + req_name + '_hist_prob_90line.png"/>'
-                                                                                                                         '<img src="plots/' + req_name + '_requests.png"/>'
-                                                                                                                                                         '</div>'
-                                                                                                                                                         '</td>'
-                                                                                                                                                         '</tr>'))
+            t.addnext(etree.XML('<tr>' +
+                                '<td colspan="8" class="hiddenRow nohover">' +
+                                '<div id="' + req_name + '" class="accordian-body collapse">' +
+
+                                '<img src="plots/' + req_name + '_hist_prob_all.png"/>' +
+                                '<img src="plots/' + req_name + '_hist_prob_90line.png"/>' +
+                                '<img src="plots/' + req_name + '_requests.png"/>' +
+                                '<img src="plots/' + req_name + '_percentiles.png"/>' +
+
+                                '</div>' +
+                                '</td>' +
+                                '</tr>'))
 
         return etree.tostring(xml)
 
@@ -82,8 +83,8 @@ class AggregateReport(BaseReport):
         :param report_name:
         """
         font = {'size': '8'}
-                #'family' : 'monospace',
-                #'weight' : 'bold',
+        #'family' : 'monospace',
+        #'weight' : 'bold',
         rc('font', **font)  # pass in the font dict as kwargs
 
         if self.perfmon:
@@ -139,10 +140,26 @@ class AggregateReport(BaseReport):
         plt.savefig('results/' + report_name + '/plots/hist_prob_line90.png')
         plt.close()
 
+        # percentile plot
+        d = np.sort(l).cumsum()
+        p = np.array([0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0])
+        perc = mlab.prctile(d, p=p)
+        plt.figure(figsize=(8, 5), dpi=150)
+        plt.plot(d)
+        plt.plot((len(d) - 1) * p / 100., perc, 'r.')
+        plt.xticks((len(d) - 1) * p / 100., map(str, p))
+        plt.xlabel('Percentile', fontsize=11)
+        plt.ylabel('Response time', fontsize=11)
+        plt.title('Percentiles', fontsize=12)
+        plt.tight_layout()
+        plt.savefig('results/' + report_name + '/plots/percentiles.png')
+        plt.close()
+
         for label, data in self._group_by_operation:
             file_name = self._normalize_test_name(label)
             d = data['Latency']
 
+            # histogram of all response time
             plt.figure(figsize=(6, 4))
             d.hist(normed=True, alpha=0.2)
             d.plot(kind='kde')
@@ -153,6 +170,7 @@ class AggregateReport(BaseReport):
             plt.savefig('results/' + report_name + '/plots/' + file_name + '_hist_prob_all.png')
             plt.close()
 
+            # histogram of 90% line response time
             plt.figure(figsize=(6, 4), dpi=150)
             d[d < np.percentile(d, 90)].hist(normed=True, alpha=0.2)
             d[d < np.percentile(d, 90)].plot(kind='kde')
@@ -163,12 +181,28 @@ class AggregateReport(BaseReport):
             plt.savefig('results/' + report_name + '/plots/' + file_name + '_hist_prob_90line.png')
             plt.close()
 
+            # scatterplot
             plt.figure(figsize=(6, 4), dpi=150)
             a = data['Latency']
             plt.plot(range(1, len(a) + 1), a, 'ro', color='g', alpha=0.50)
             plt.xlabel('Request', fontsize=11)
-            plt.ylabel('Time', fontsize=11)
+            plt.ylabel('Response time', fontsize=11)
             plt.title('Requests times', fontsize=12)
             plt.tight_layout()
             plt.savefig('results/' + report_name + '/plots/' + file_name + '_requests.png')
+            plt.close()
+
+            # percentile plot
+            pd = np.sort(d).cumsum()
+            p = np.array([0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0, 100.0])
+            perc = mlab.prctile(pd, p=p)
+            plt.figure(figsize=(6, 4), dpi=150)
+            plt.plot(pd)
+            plt.plot((len(pd) - 1) * p / 100., perc, 'r.')
+            plt.xticks((len(pd) - 1) * p / 100., map(str, p))
+            plt.xlabel('Percentile', fontsize=11)
+            plt.ylabel('Response time', fontsize=11)
+            plt.title('Percentiles', fontsize=12)
+            plt.tight_layout()
+            plt.savefig('results/' + report_name + '/plots/' + file_name + '_percentiles.png')
             plt.close()

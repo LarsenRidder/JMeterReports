@@ -12,6 +12,6 @@
     background-color: transparent;
 }
 
-#perfmon > plot-panel {
+.plot-panel {
     text-align: center;
 }
