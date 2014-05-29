@@ -7,6 +7,8 @@ from lib.basereport import BaseReport
 from lib.utils import percentile90, trend
 import matplotlib.pyplot as plt
 import pylab as pl
+from matplotlib import rc
+from mpltools import style
 
 
 class CompareReport(BaseReport):
@@ -19,9 +21,9 @@ class CompareReport(BaseReport):
         self.df2 = pd.read_csv(file_paths[1])
 
     def _generate_html_data(self):
-        if not hasattr(self, 'df1') or not self.df1:
+        if not hasattr(self, 'df1') or self.df1.empty:
             return ''
-        if not hasattr(self, 'df2') or not self.df2:
+        if not hasattr(self, 'df2') or self.df2.empty:
             return ''
 
         # Calc aggregate report for first data frame
@@ -122,6 +124,12 @@ class CompareReport(BaseReport):
 
         :param report_name:
         """
+        font = {'size': '8'}
+        #'family' : 'monospace',
+        #'weight' : 'bold',
+        rc('font', **font)
+        style.use('ggplot')
+
         l1 = self.df1['Latency']
         l2 = self.df2['Latency']
 
@@ -142,35 +150,41 @@ class CompareReport(BaseReport):
                  alpha=0.40,
                  histtype='step',
                  label='2')
+        plt.tick_params(axis='both', which='major', labelsize=8)
+        plt.tick_params(axis='both', which='minor', labelsize=6)
         plt.legend()
-        plt.xlabel('Response time')
-        plt.ylabel('Probability')
-        plt.title('Histogram of all response time')
+        plt.xlabel('Response time', fontsize=9)
+        plt.ylabel('Probability', fontsize=9)
+        plt.title('Histogram of all response time', fontsize=10)
         plt.tight_layout()
         plt.savefig('results/' + report_name + '/plots/hist_prob_all.png')
         plt.close()
 
         plt.figure(figsize=(8, 5), dpi=150)
-        plt.hist(l1[l1 < np.percentile(l1, 90)],
-                 bins=math.pow(len(l1[l1 < np.percentile(l1, 90)]), float(1) / 3),
+        l1_90 = l1[l1 < np.percentile(l1, 90)].reset_index(drop=True)
+        l2_90 = l2[l2 < np.percentile(l2, 90)].reset_index(drop=True)
+        plt.hist(l1_90,
+                 bins=math.pow(len(l1_90), float(1) / 3),
                  normed=True,
                  color=['g'],
                  fill=True,
                  alpha=0.40,
                  histtype='step',
                  label='1')
-        plt.hist(l2[l2 < np.percentile(l2, 90)],
-                 bins=math.pow(len(l2[l2 < np.percentile(l2, 90)]), float(1) / 3),
+        plt.hist(l2_90,
+                 bins=math.pow(len(l2_90), float(1) / 3),
                  normed=True,
                  color=['g'],
                  fill=True,
                  alpha=0.40,
                  histtype='step',
                  label='2')
+        plt.tick_params(axis='both', which='major', labelsize=8)
+        plt.tick_params(axis='both', which='minor', labelsize=6)
         plt.legend()
-        plt.xlabel('Response time')
-        plt.ylabel('Probability')
-        plt.title('Histogram of 90% line response time')
+        plt.xlabel('Response time', fontsize=9)
+        plt.ylabel('Probability', fontsize=9)
+        plt.title('Histogram of 90% line response time', fontsize=10)
         plt.tight_layout()
         plt.savefig('results/' + report_name + '/plots/hist_prob_90line.png')
         plt.close()
@@ -195,71 +209,102 @@ class CompareReport(BaseReport):
 
             if not pd.isnull(data['mean1']) or not pd.isnull(data['mean2']):
                 plt.figure(figsize=(6, 4))
-                if not pd.isnull(data['mean1']) and not pd.isnull(data['mean2']):
-                    l = len(d1) if len(d1) > len(d2) else len(d2)
-                    n, bins, patches = plt.hist([d1, d2],
-                                                bins=math.pow(l, float(1) / 3),
-                                                normed=1,
-                                                alpha=0.60,
-                                                label=['1', '2'],
-                                                color=['g', 'b'])
-                    plt.plot(bins, pl.normpdf(bins, np.mean(d1), np.std(d1)), 'r--', color='g', label='norm1', linewidth=2)
-                    plt.plot(bins, pl.normpdf(bins, np.mean(d2), np.std(d2)), 'r--', color='b', label='norm2', linewidth=2)
-                elif not pd.isnull(data['mean1']):
-                    n, bins, patches = plt.hist(d1,
-                                                bins=math.pow(len(d1), float(1) / 3),
-                                                normed=1,
-                                                alpha=0.60,
-                                                label='1',
-                                                color='g')
-                    plt.plot(bins, pl.normpdf(bins, np.mean(d1), np.std(d1)), 'r--', color='g', label='norm1', linewidth=2)
-                elif not pd.isnull(data['mean2']):
-                    n, bins, patches = plt.hist(d2,
-                                                bins=math.pow(len(d2), float(1) / 3),
-                                                normed=1,
-                                                alpha=0.60,
-                                                label='2',
-                                                color='b')
-                    plt.plot(bins, pl.normpdf(bins, np.mean(d2), np.std(d2)), 'r--', color='g', label='norm2', linewidth=2)
+                if not pd.isnull(data['mean1']):
+                    d1.hist(normed=True, alpha=0.2, label='1')
+                    d1.plot(kind='kde', label='1')
+
+                if not pd.isnull(data['mean2']):
+                    d2.hist(normed=True, alpha=0.2, label='2')
+                    d2.plot(kind='kde', label='2')
+
+                # if not pd.isnull(data['mean1']) and not pd.isnull(data['mean2']):
+                #     l = len(d1) if len(d1) > len(d2) else len(d2)
+                #     n, bins, patches = plt.hist([d1, d2],
+                #                                 bins=math.pow(l, float(1) / 3),
+                #                                 normed=1,
+                #                                 alpha=0.60,
+                #                                 label=['1', '2'],
+                #                                 color=['g', 'b'])
+                #     #plt.plot(bins, pl.normpdf(bins, np.mean(d1), np.std(d1)), 'r--', color='g', label='norm1', linewidth=2)
+                #     #plt.plot(bins, pl.normpdf(bins, np.mean(d2), np.std(d2)), 'r--', color='b', label='norm2', linewidth=2)
+                # elif not pd.isnull(data['mean1']):
+                #     n, bins, patches = plt.hist(d1,
+                #                                 bins=math.pow(len(d1), float(1) / 3),
+                #                                 normed=1,
+                #                                 alpha=0.60,
+                #                                 label='1',
+                #                                 color='g')
+                #     plt.plot(bins, pl.normpdf(bins, np.mean(d1), np.std(d1)), 'r--', color='g', label='norm1', linewidth=2)
+                # elif not pd.isnull(data['mean2']):
+                #     n, bins, patches = plt.hist(d2,
+                #                                 bins=math.pow(len(d2), float(1) / 3),
+                #                                 normed=1,
+                #                                 alpha=0.60,
+                #                                 label='2',
+                #                                 color='b')
+                #     plt.plot(bins, pl.normpdf(bins, np.mean(d2), np.std(d2)), 'r--', color='g', label='norm2', linewidth=2)
                 plt.legend()
-                plt.xlabel('Response time')
-                plt.ylabel('Probability')
-                plt.title('Histogram of all response time')
+                plt.xlabel('Response time', fontsize=9)
+                plt.ylabel('Probability', fontsize=9)
+                plt.title('Histogram of all response time', fontsize=10)
+                plt.tick_params(axis='both', which='major', labelsize=8)
+                plt.tick_params(axis='both', which='minor', labelsize=6)
                 plt.tight_layout()
                 plt.savefig('results/' + report_name + '/plots/' + file_name + '_hist_prob_all.png')
                 plt.close()
 
                 plt.figure(figsize=(6, 4))
-                if not pd.isnull(data['mean1']) and not pd.isnull(data['mean2']):
-                    l = len(d1) if len(d1) > len(d2) else len(d2)
-                    n, bins, patches = plt.hist([d1[d1 < np.percentile(d1, 90)], d2[d2 < np.percentile(d2, 90)]],
-                                                bins=math.pow(l, float(1) / 3),
-                                                normed=1,
-                                                alpha=0.60,
-                                                label=['1', '2'],
-                                                color=['g', 'b'])
-                    plt.plot(bins, pl.normpdf(bins, np.mean(d1[d1 < np.percentile(d1, 90)]), np.std(d1[d1 < np.percentile(d1, 90)])), 'r--', color='g', label='norm1', linewidth=2)
-                    plt.plot(bins, pl.normpdf(bins, np.mean(d2[d2 < np.percentile(d2, 90)]), np.std(d2[d2 < np.percentile(d2, 90)])), 'r--', color='b', label='norm2', linewidth=2)
-                elif not pd.isnull(data['mean1']):
-                    n, bins, patches = plt.hist(d1[d1 < np.percentile(d1, 90)],
-                                                bins=math.pow(len(d1[d1 < np.percentile(d1, 90)]), float(1) / 3),
-                                                normed=1,
-                                                alpha=0.60,
-                                                label='1',
-                                                color='g')
-                    plt.plot(bins, pl.normpdf(bins, np.mean(d1[d1 < np.percentile(d1, 90)]), np.std(d1[d1 < np.percentile(d1, 90)])), 'r--', color='g', label='norm1', linewidth=2)
-                elif not pd.isnull(data['mean2']):
-                    n, bins, patches = plt.hist(d2[d2 < np.percentile(d2, 90)],
-                                                bins=math.pow(len(d2[d2 < np.percentile(d2, 90)]), float(1) / 3),
-                                                normed=1,
-                                                alpha=0.60,
-                                                label='2',
-                                                color='b')
-                    plt.plot(bins, pl.normpdf(bins, np.mean(d2[d2 < np.percentile(d2, 90)]), np.std(d2[d2 < np.percentile(d2, 90)])), 'r--', color='g', label='norm2', linewidth=2)
+                if not pd.isnull(data['mean1']):
+                    d1[d1 < np.percentile(d1, 90)].hist(normed=True, alpha=0.2, label='1')
+                    try:
+                        d1[d1 < np.percentile(d1, 90)].plot(kind='kde', label='1')
+                    except np.linalg.linalg.LinAlgError:
+                        pass
+                        # if singular matrix - no plot
+                    except:
+                        raise
+
+                if not pd.isnull(data['mean2']):
+                    d2[d2 < np.percentile(d2, 90)].hist(normed=True, alpha=0.2, label='2')
+                    try:
+                        d2[d2 < np.percentile(d2, 90)].plot(kind='kde', label='2')
+                    except np.linalg.linalg.LinAlgError:
+                        pass
+                        # if singular matrix - no plot
+                    except:
+                        raise
+                # if not pd.isnull(data['mean1']) and not pd.isnull(data['mean2']):
+                #     l = len(d1) if len(d1) > len(d2) else len(d2)
+                #     n, bins, patches = plt.hist([d1[d1 < np.percentile(d1, 90)], d2[d2 < np.percentile(d2, 90)]],
+                #                                 bins=math.pow(l, float(1) / 3),
+                #                                 normed=1,
+                #                                 alpha=0.60,
+                #                                 label=['1', '2'],
+                #                                 color=['g', 'b'])
+                #     plt.plot(bins, pl.normpdf(bins, np.mean(d1[d1 < np.percentile(d1, 90)]), np.std(d1[d1 < np.percentile(d1, 90)])), 'r--', color='g', label='norm1', linewidth=2)
+                #     plt.plot(bins, pl.normpdf(bins, np.mean(d2[d2 < np.percentile(d2, 90)]), np.std(d2[d2 < np.percentile(d2, 90)])), 'r--', color='b', label='norm2', linewidth=2)
+                # elif not pd.isnull(data['mean1']):
+                #     n, bins, patches = plt.hist(d1[d1 < np.percentile(d1, 90)],
+                #                                 bins=math.pow(len(d1[d1 < np.percentile(d1, 90)]), float(1) / 3),
+                #                                 normed=1,
+                #                                 alpha=0.60,
+                #                                 label='1',
+                #                                 color='g')
+                #     plt.plot(bins, pl.normpdf(bins, np.mean(d1[d1 < np.percentile(d1, 90)]), np.std(d1[d1 < np.percentile(d1, 90)])), 'r--', color='g', label='norm1', linewidth=2)
+                # elif not pd.isnull(data['mean2']):
+                #     n, bins, patches = plt.hist(d2[d2 < np.percentile(d2, 90)],
+                #                                 bins=math.pow(len(d2[d2 < np.percentile(d2, 90)]), float(1) / 3),
+                #                                 normed=1,
+                #                                 alpha=0.60,
+                #                                 label='2',
+                #                                 color='b')
+                #     plt.plot(bins, pl.normpdf(bins, np.mean(d2[d2 < np.percentile(d2, 90)]), np.std(d2[d2 < np.percentile(d2, 90)])), 'r--', color='g', label='norm2', linewidth=2)
                 plt.legend()
-                plt.xlabel('Response time')
-                plt.ylabel('Probability')
-                plt.title('Histogram of 90% line response time')
+                plt.xlabel('Response time', fontsize=9)
+                plt.ylabel('Probability', fontsize=9)
+                plt.title('Histogram of 90% line response time', fontsize=10)
+                plt.tick_params(axis='both', which='major', labelsize=8)
+                plt.tick_params(axis='both', which='minor', labelsize=6)
                 plt.tight_layout()
                 plt.savefig('results/' + report_name + '/plots/' + file_name + '_hist_prob_90line.png')
                 plt.close()
@@ -270,9 +315,11 @@ class CompareReport(BaseReport):
                 if not pd.isnull(data['mean2']):
                     plt.plot(range(1, len(d2) + 1), d2, 'ro', color='b', alpha=0.50, label='2')
                 plt.legend()
-                plt.xlabel('Request')
-                plt.ylabel('Time')
-                plt.title('Requests times')
+                plt.xlabel('Request', fontsize=9)
+                plt.ylabel('Time', fontsize=9)
+                plt.title('Requests time', fontsize=10)
+                plt.tick_params(axis='both', which='major', labelsize=8)
+                plt.tick_params(axis='both', which='minor', labelsize=6)
                 plt.tight_layout()
                 plt.savefig('results/' + report_name + '/plots/' + file_name + '_requests.png')
                 plt.close()

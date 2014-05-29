@@ -1,17 +1,23 @@
 ﻿"CPU/Therads over time":
-  params:
-    zero-time: Yes
+  #params:
+  #  zero-time: Yes
 
   output: cpu_thread_over_time
   input:
-    "data/cpu.csv":
-      columns:
-        - elapsed
-
-      group-by: label
+    'data/cpu.csv':
+      # real-date: Yes
+      group-by: 'label'
       groups:
-        - "srv2-3pd-crm05 CPU"
+        - 'srv2-3pd-crm05 CPU'
+        - 'srv2-3pd-crm05 CPU idle'
 
-    "data/perfdata.csv":
       columns:
-        - allThreads
+        elapsed: {}
+
+    'data/perfdata.csv':
+      min-y: 0
+
+      columns:
+        allThreads:
+          label: 'Threads'
+          as_is: False

@@ -40,8 +40,6 @@ class BaseReport(object):
 
     def read_perfmon(self, file_path):
         self.perfmon = yaml.load(codecs.open(file_path, encoding='utf-8').read())
-        #df['timeStamp'] = df['timeStamp'].apply(lambda x: datetime.datetime.fromtimestamp(int(str(x)[:-3])).strftime('%Y-%m-%d %H:%M:%S'))
-        #self.perfmon.append(df)
 
     def to_html(self, report_name):
         report_name = datetime.datetime.now().strftime("%Y%m%d_%H%M%S_" + report_name)
@@ -49,6 +47,9 @@ class BaseReport(object):
         # rename previous report if exist
         if os.path.isdir('results/' + report_name):
             os.rename('results/' + report_name, 'results/' + report_name + '_before_' + datetime.datetime.now().strftime("%Y%m%d_%H%M%S"))
+
+        report_name = 'test'
+        shutil.rmtree('results/' + report_name)
 
         # prepare dir
         os.mkdir('results/' + report_name)
